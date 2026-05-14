@@ -15,9 +15,9 @@ Here are some ideas to get you started:
 -->
 
 # Hi there, I'm Shiv Prakash 👋
-### Staff Distributed Systems Engineer | Bengaluru, India
+### Staff Software Engineer | Bengaluru, India
 
-I am a Software Engineer with over 6 years of experience designing and building high-throughput, distributed backend systems. I specialize in architecting event-driven microservices and resilient data pipelines using patterns like **CQRS** and **Saga** to ensure system reliability at massive scale.
+I am a Software Engineer with 6+ years of experience designing and building high-throughput, real-time data platforms and event-driven microservices at scale. Have built high-throughput ingestion pipelines, billing/payments, highly available, and low-latency video infrastructure.
 
 My work focuses on solving complex synchronization, multi-tenancy isolation, and consistency problems in real-time environments.
 
