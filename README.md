@@ -61,6 +61,9 @@ My work focuses on solving complex synchronization, multi-tenancy isolation, and
 | **Web/Mobile** | iOS(Swift), React-native, NextJs, React.
 
 ---
-
+<p align="left">
+  <img src="https://github-readme-stats.vercel.app/api?username=shivanand217&show_icons=true&theme=tokyonight" alt="GitHub Stats" />
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=shivanand217&theme=tokyonight" alt="Contribution Streak" />
+</p>
 ---
 *Based in Bengaluru, India. I am particularly interested in entrepreneurial ventures and exploring massive B2C product ideas that solve underserved market gaps.*
