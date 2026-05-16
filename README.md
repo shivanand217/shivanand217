@@ -68,7 +68,7 @@ WebSocket edge layer uses consistent hashing for sticky sessions to document sha
 
 Low-latency AI avatar / lip-sync video pipeline in Go on GCP, HLS + WebSocket distribution for AR ad experiences. Green-screen service orchestrating concurrent FFmpeg workers on GKE, queue-driven scaling with back-pressure for high-volume rendering.
 
-### Multilingual AI Avatar Platform — RAG + lip-sync video, production at Flam
+### Multilingual AI Avatar Platform — RAG + lip-sync video
 > *Shipped — banking & financial services use cases*
  
 A platform that turns a person's likeness into a multilingual conversational avatar: the avatar speaks any supported local language with accurate lip-sync, grounded in domain knowledge via RAG. Built for banking and financial-services use cases — onboarding, customer support, branch-style assistance — where trust, language coverage, and factual accuracy are non-negotiable.
