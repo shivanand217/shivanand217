@@ -99,7 +99,7 @@ Most used stacks till now -
 | **Streaming & messaging** | Kafka, Apache Flink, Redis Streams, RabbitMQ, Aeron |
 | **OLAP & storage** | ClickHouse, Apache Iceberg, TimescaleDB, kdb+ / QuestDB, Postgres, Mongo/DynamoDB, S3 |
 | **Search** | Elasticsearch, OpenSearch (edge n-grams, function score, decay) |
-| **Infra & observability** | Kubernetes, GKE, AWS, GCP, Prometheus, Grafana, Zipkin |
+| **Infra, Cloud and observability** | Kubernetes, GKE, AWS, GCP, Prometheus, Grafana, Zipkin |
 | **Patterns** | Event sourcing, CQRS, Saga, DDD, CRDTs, multi-tenancy isolation |
 | **Mobile** | Swift / SwiftUI, React Native, Kotlin(Android) | 
 
