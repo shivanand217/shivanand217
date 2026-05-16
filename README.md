@@ -109,4 +109,4 @@ Most used stacks till now -
 
 Senior, early-staff, or founding engineer roles, where the problems involve dealing with real-time, high-throughput systems involving AI. Financial infrastructure, developer platforms, or B2C at a scale where the architecture actually matters.
 
-📫 *You can reach out to me at - **shivakp2111@gmail.com** *
+📫 *Can be reached out at - **shivakp2111@gmail.com** *
