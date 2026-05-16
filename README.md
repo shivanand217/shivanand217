@@ -89,7 +89,7 @@ A platform that turns a person's likeness into a multilingual conversational ava
 
 ### Earlier work worth mentioning
 
-- Built search & discovery read paths with Go worker pools — APIs scaled from struggling at lower volumes to 150k+ peak QPS, p99 from 450ms → <80ms. Built the CDC pipeline (Go + Kafka), keeping Elasticsearch within 200ms of the source of truth for the global feed.
+- Built search & discovery read paths with Go worker pools — APIs scaled from struggling at lower volumes to 20k+ peak QPS, p99 from 450ms → <80ms. Built the CDC pipeline (Go + Kafka), keeping Elasticsearch within 200ms of the source of truth for the global feed.
 - Subscription billing platform driving 50% revenue growth. Idempotent payment flows, webhook processing with retry, exactly-once semantics, and dead-letter recovery. The system I'm proudest of for being *boring* in production.
 - CQRS analytics platform ingesting 20M records/day. Saga orchestration on RabbitMQ for distributed trip lifecycles with compensating transactions.
 - Built mobile apps/SDKs for insurtech, content-commerce(similar to tiktok) and healthcare products.
