@@ -73,6 +73,7 @@ Low-latency AI avatar / lip-sync video pipeline in Go on GCP, HLS + WebSocket di
 - Built search & discovery read paths with Go worker pools — APIs scaled from struggling at lower volumes to 150k+ peak QPS, p99 from 450ms → <80ms. Built the CDC pipeline (Go + Kafka), keeping Elasticsearch within 200ms of the source of truth for the global feed.
 - Subscription billing platform driving 50% revenue growth. Idempotent payment flows, webhook processing with retry, exactly-once semantics, and dead-letter recovery. The system I'm proudest of for being *boring* in production.
 - CQRS analytics platform ingesting 20M records/day. Saga orchestration on RabbitMQ for distributed trip lifecycles with compensating transactions.
+- Built mobile apps/SDKs.
 
 ---
 
@@ -84,7 +85,7 @@ Low-latency AI avatar / lip-sync video pipeline in Go on GCP, HLS + WebSocket di
 
 **Chaos before production.** Every critical path I've shipped has been tested with broker kills, TaskManager failures, network partitions, and replica loss *before* it ever served real traffic.
 
-**Mentorship is system design.** The teams I've led — Backend, iOS/Swift, React Native — got architecture reviews, design doc templates, and clear escalation paths. Believing that, people are systems too; they have throughput, latency, and failure modes.
+**Provide Mentorship in system design.** The teams I've led — Backend, iOS/Swift, React Native — got architecture reviews, design doc templates, and clear escalation paths. Believing that, people are systems too; they have throughput, latency, and failure modes.
 
 ---
 
@@ -94,7 +95,7 @@ Most used stacks till now -
 
 | Layer | Tools |
 | :--- | :--- |
-| **Application backend** — Java/Spring, Go, Node/TypeScript, Rust |
+| **Application backend** | Java/Spring, Go, Node/TypeScript, Rust, C++ |
 | **Streaming & messaging** | Kafka, Apache Flink, Redis Streams, RabbitMQ, Aeron |
 | **OLAP & storage** | ClickHouse, Apache Iceberg, TimescaleDB, kdb+ / QuestDB, Postgres, Mongo/DynamoDB, S3 |
 | **Search** | Elasticsearch, OpenSearch (edge n-grams, function score, decay) |
@@ -106,6 +107,6 @@ Most used stacks till now -
 
 ## What I'm open to
 
-Founding or early-staff roles where the problems involve dealing with real-time, high-throughput systems involving AI. Financial infrastructure, developer platforms, or B2C at a scale where the architecture actually matters. Love reading papers and making system design docs.
+Senior, early-staff, or founding engineer roles, where the problems involve dealing with real-time, high-throughput systems involving AI. Financial infrastructure, developer platforms, or B2C at a scale where the architecture actually matters.
 
 📫 *You can reach out to me at - **shivakp2111@gmail.com** *
