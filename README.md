@@ -15,51 +15,95 @@ Here are some ideas to get you started:
 -->
 
 # Hi there, I'm Shiv Prakash 👋
-### Staff Software Engineer | Bengaluru, India
+### Senior Software Engineer | Bengaluru, India
 
-I am a Software Engineer with 6+ years of experience designing and building high-throughput, real-time data platforms and event-driven microservices at scale. Have built high-throughput ingestion pipelines, billing/payments, highly available, and low-latency video infrastructure.
+I build systems that other systems depend on — high-throughput ingestion, deterministic matching engines, multi-tenant OLAP, real-time collaboration, and the boring infrastructure. Seven years across early/growth-stage and stealth companies, owning architecture end-to-end: from defining service boundaries and consistency models, down to JVM tuning and the SLOs that keep on-call quiet.
 
-My work focuses on solving complex synchronization, multi-tenancy isolation, and consistency problems in real-time environments.
-
----
-
-## 🏗️ Most impactful projects.
-
-### 1. Multi-Tenant SaaS Analytics Platform
-*A high-scale OLAP engine designed for 1M+ events/second across 10k+ tenants with strict isolation.*
-
-*   **Core Tech:** 
-    *   **Services:** Go-based ingest-gateway, schema-registry, and query services.
-    *   **Data:** Kafka (tier-based partitioning), ClickHouse (tenant-aware sharding + S3 tiered storage), and Apache Iceberg for cold storage.
-    *   **Caching/Search:** Redis for query result caching and OpenSearch for event-level search.
-    *   **Tiered Storage:** Hot SSD → Warm HDD → Cold S3 with intelligent query rewriting.
-    *   **Isolation:** Enforced resource quotas (CPU, memory, query concurrency) via ClickHouse profiles.
-    *   **Observability:** Every query is traced with a `tenant_id` span tag, feeding into per-tenant cost dashboards ($/MTU, $/query).
-
-### 2. Real-Time Collaborative Document Platform
-*An active-active, multi-region collaborative engine supporting concurrent editors per document with <100ms latency.*
-
-*   **Core Tech:** 
-    *   **Services:** Rust and Go microservices for gateway, document, and presence management.
-    *   **Consistency:** Yjs/Automerge (CRDTs) and Redis Streams for ephemeral collab state.
-    *   **Persistence:** PostgreSQL for metadata; S3 for content-addressed doc snapshots and version blobs.
-    *   **Convergence & Chaos:** Utilized Jepsen-style testing to prove replica convergence under extreme network partitions.
-    *   **Connection Management:** Engineered a WebSocket edge layer using consistent hashing to maintain sticky sessions to document shards.
-    *   **Performance:** Achieved keystroke-to-remote-echo p99 < 100ms within-region through snapshot + delta persistence strategies.
+I care most about three things: **Building high throughput**, **low latency**, and **highly available** systems.
 
 ---
 
-## 🛠️ Technical Ecosystem
+## Systems I've built (the ones worth talking about)
 
-| Domain | Technologies |
-| :--- | :--- |
-| **Backend Core** | Go, Rust, Java, Distributed Systems Design |
-| **Data & Messaging** | Kafka, Apache Flink, Redis Streams, RabbitMQ |
-| **Storage & OLAP** | ClickHouse, PostgreSQL, Apache Iceberg, OpenSearch, S3 |
-| **Search & Optimization** | Elasticsearch (Edge N-gram tokenizers, Function Score queries) |
-| **Architecture** | CQRS, Saga, Event-Driven Microservices, CRDTs, Multi-tenancy |
-| **Web/Mobile** | iOS(Swift), React-native, NextJs, React.
+### Real-time ad analytics — 10k QPS sustained, click-to-query in ~70s
+
+Kafka → Apache Flink → ClickHouse, with stateful stream processing, exactly-once checkpointing, and late-event handling. Brands query 1-minute granular campaign metrics within ~70 seconds of the click landing. Hot rollups cached in Redis with 30s TTL and click-level de-duplication, materially reducing ClickHouse query load.
+
+**What was hard:** late events without breaking exactly-once. Flink's watermark + allowed lateness gives you the *mechanism*; the *policy* (how late is "too late" for an advertiser dashboard?) is a product decision dressed as an engineering one. I wrote the design doc that forced that conversation.
+
+**SLOs I committed to and held:** 99% availability, click-to-query freshness < 90s, analytics read p99 < 200ms. Validated under k6 load tests and chaos drills — TaskManager kills mid-window, broker failovers — exactly-once recovery confirmed with zero data loss.
+
+### Multi-tenant SaaS analytics — 1M+ events/sec, 10k+ tenants
+> *Architecture & design work*
+
+Go-based ingest gateway, schema registry, and query layer. Kafka partitioning tiered by tenant class. ClickHouse with tenant-aware sharding and S3-tiered storage (hot SSD → warm HDD → cold S3 via Apache Iceberg). OpenSearch for event-level lookups, Redis for query result caching.
+
+**The interesting problem:** noisy-neighbor isolation without dedicated infrastructure per tenant. Solved via ClickHouse profile-level CPU/memory/concurrency quotas, with every query traced under a `tenant_id` span tag feeding per-tenant cost dashboards. You can't fix what you can't attribute.
+
+### Stock trading platform — order management + matching engine
+> *Personal architecture project*
+
+Mini-Robinhood / Interactive Brokers, designed for 1M orders/sec with deterministic sub-microsecond matching. Hot path in C++/Rust (matching engine, market data handler at ~5M ticks/sec), cold path in Go/Java (clearing, compliance, audit).
+
+**Why it's a challenging system I've designed:** it's the strictest intersection of *correctness, latency, and regulation* in software. A misplaced order costs millions and triggers regulatory inquiries. Closer to embedded systems than typical backend.
+
+The architecture leans on:
+- **LMAX Disruptor** for in-memory event processing on the hot path
+- **Aeron / Chronicle Queue** for ultra-low-latency IPC between services
+- **Single-writer per symbol** — no contention, cache-line friendly
+- **Event sourcing with deterministic replay** — recreate any moment in market time, byte-for-byte
+- **Pre-trade risk checks** (account margin, position limits, regulatory limits) on the gateway, before the order ever touches the matching engine
+- **Kill switches at three layers**: per-account, per-symbol, global
+- **PTP-synchronized microsecond timestamping** for SEC Rule 613 / CAT and MiFID II reporting
+- **kdb+/QuestDB** for tick analytics, TimescaleDB for end-of-day, FIX protocol for exchange connectivity
+
+### Real-time collaborative document platform
+> *Architecture & design work*
+
+Active-active multi-region, concurrent editors per document, keystroke-to-remote-echo p99 < 100ms within-region. Rust + Go microservices, Yjs / Automerge (CRDTs) for convergence, Redis Streams for ephemeral collab state, Postgres for metadata, S3 for content-addressed snapshots and version blobs.
+
+WebSocket edge layer uses consistent hashing for sticky sessions to document shards. Convergence verified via Jepsen-style network partition testing.
+
+### Streaming & AR video infrastructure
+
+Low-latency AI avatar / lip-sync video pipeline in Go on GCP, HLS + WebSocket distribution for AR ad experiences. Green-screen service orchestrating concurrent FFmpeg workers on GKE, queue-driven scaling with back-pressure for high-volume rendering.
+
+### Earlier work worth mentioning
+
+- Built search & discovery read paths with Go worker pools — APIs scaled from struggling at lower volumes to 150k+ peak QPS, p99 from 450ms → <80ms. Built the CDC pipeline (Go + Kafka), keeping Elasticsearch within 200ms of the source of truth for the global feed.
+- Subscription billing platform driving 50% revenue growth. Idempotent payment flows, webhook processing with retry, exactly-once semantics, and dead-letter recovery. The system I'm proudest of for being *boring* in production.
+- CQRS analytics platform ingesting 20M records/day. Saga orchestration on RabbitMQ for distributed trip lifecycles with compensating transactions.
 
 ---
 
-*Based in Bengaluru, India. I am particularly interested in entrepreneurial ventures and exploring massive B2C product ideas that solve underserved market gaps.*
+## How I work
+
+**Design docs / System design before code.** Every system above started as a doc with explicit functional, non-functional requirements, failure modes, and SLO commitments.
+
+**SLOs are contracts, not aspirations.** I believe if we can't define availability, latency, and freshness as numbers, we don't have a system — we just have a hope.
+
+**Chaos before production.** Every critical path I've shipped has been tested with broker kills, TaskManager failures, network partitions, and replica loss *before* it ever served real traffic.
+
+**Mentorship is system design.** The teams I've led — Backend, iOS/Swift, React Native — got architecture reviews, design doc templates, and clear escalation paths. Believing that, people are systems too; they have throughput, latency, and failure modes.
+
+---
+
+## Stack
+
+Most used stacks till now - 
+
+**Application backend** — Java/Spring, Go, Node/TypeScript, Rust
+**Streaming & messaging** — Kafka, Apache Flink, Redis Streams, RabbitMQ, Aeron
+**OLAP & storage** — ClickHouse, Apache Iceberg, TimescaleDB, kdb+/QuestDB, PostgreSql, S3, DynamoDB/MongoDB
+**Search** — Elasticsearch, OpenSearch (edge n-grams, function score, decay)
+**Infra** — Kubernetes, Docker, GKE, AWS, GCP, Prometheus, Grafana, Zipkin, distributed tracing
+**Patterns** — Event sourcing, CQRS, Saga, DDD, CRDTs, multi-tenancy isolation, CDC.
+**Mobile** — iOS (Swift), React Native, Kotlin(Android).
+
+---
+
+## What I'm open to
+
+Founding or early-staff roles where the problems involve dealing with real-time, high-throughput systems involving AI. Financial infrastructure, developer platforms, or B2C at a scale where the architecture actually matters. Love reading papers and making system design docs.
+
+📫 *Reach out via the contact links on my profile.*
