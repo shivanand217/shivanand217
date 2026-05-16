@@ -121,7 +121,7 @@ Most used stacks till now -
 | **Infra, Cloud and observability** | Kubernetes, GKE, AWS, GCP, Prometheus, Grafana, Zipkin |
 | **LLM & AI infra** | vLLM, Temporal, OpenAI / Anthropic APIs, eval harnesses |
 | **Patterns** | Event sourcing, CQRS, Saga, DDD, CRDTs, multi-tenancy isolation |
-| **Mobile** | Swift / SwiftUI, React Native, Kotlin(Android) | 
+| **Mobile** | iOS(Swift), React Native, Kotlin(Android) | 
 
 ---
 
