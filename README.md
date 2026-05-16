@@ -92,13 +92,15 @@ Low-latency AI avatar / lip-sync video pipeline in Go on GCP, HLS + WebSocket di
 
 Most used stacks till now - 
 
-**Application backend** — Java/Spring, Go, Node/TypeScript, Rust
-**Streaming & messaging** — Kafka, Apache Flink, Redis Streams, RabbitMQ, Aeron
-**OLAP & storage** — ClickHouse, Apache Iceberg, TimescaleDB, kdb+/QuestDB, PostgreSql, S3, DynamoDB/MongoDB
-**Search** — Elasticsearch, OpenSearch (edge n-grams, function score, decay)
-**Infra** — Kubernetes, Docker, GKE, AWS, GCP, Prometheus, Grafana, Zipkin, distributed tracing
-**Patterns** — Event sourcing, CQRS, Saga, DDD, CRDTs, multi-tenancy isolation, CDC.
-**Mobile** — iOS (Swift), React Native, Kotlin(Android).
+| Layer | Tools |
+| :--- | :--- |
+| **Application backend** — Java/Spring, Go, Node/TypeScript, Rust |
+| **Streaming & messaging** | Kafka, Apache Flink, Redis Streams, RabbitMQ, Aeron |
+| **OLAP & storage** | ClickHouse, Apache Iceberg, TimescaleDB, kdb+ / QuestDB, Postgres, Mongo/DynamoDB, S3 |
+| **Search** | Elasticsearch, OpenSearch (edge n-grams, function score, decay) |
+| **Infra & observability** | Kubernetes, GKE, AWS, GCP, Prometheus, Grafana, Zipkin |
+| **Patterns** | Event sourcing, CQRS, Saga, DDD, CRDTs, multi-tenancy isolation |
+| **Mobile** | Swift / SwiftUI, React Native, Kotlin(Android) | 
 
 ---
 
@@ -106,4 +108,4 @@ Most used stacks till now -
 
 Founding or early-staff roles where the problems involve dealing with real-time, high-throughput systems involving AI. Financial infrastructure, developer platforms, or B2C at a scale where the architecture actually matters. Love reading papers and making system design docs.
 
-📫 *Reach out via the contact links on my profile.*
+📫 *You can reach out to me at - **shivakp2111@gmail.com** *
