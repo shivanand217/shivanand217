@@ -17,7 +17,7 @@ Here are some ideas to get you started:
 # Hi there, I'm Shiv Prakash 👋
 ### Senior Software Engineer | Bengaluru, India
 
-I build systems that other systems depend on — high-throughput ingestion, deterministic matching engines, multi-tenant OLAP, real-time collaboration, and the boring infrastructure. Seven years across early/growth-stage and stealth companies, owning architecture end-to-end: from defining service boundaries and consistency models, down to JVM tuning and the SLOs that keep on-call quiet.
+I build systems that other systems depend on — high-throughput ingestion, deterministic matching engines, multi-tenant OLAP, real-time collaboration. Seven years across early/growth-stage and stealth companies, owning architecture end-to-end: from defining service boundaries and consistency models, down to JVM tuning and the SLOs that keep on-call quiet.
 
 I care most about three things: **Building high throughput**, **low latency**, and **highly available** systems.
 
