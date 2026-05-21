@@ -33,37 +33,6 @@ Kafka → Apache Flink → ClickHouse, with stateful stream processing, exactly-
 
 **SLOs I committed to and held:** 99% availability, click-to-query freshness < 90s, analytics read p99 < 200ms. Validated under k6 load tests and chaos drills — TaskManager kills mid-window, broker failovers — exactly-once recovery confirmed with zero data loss.
 
-### Multi-tenant SaaS analytics — 1M+ events/sec, 10k+ tenants
-> *Architecture & design work*
-
-Go-based ingest gateway, schema registry, and query layer. Kafka partitioning tiered by tenant class. ClickHouse with tenant-aware sharding and S3-tiered storage (hot SSD → warm HDD → cold S3 via Apache Iceberg). OpenSearch for event-level lookups, Redis for query result caching.
-
-**The interesting problem:** noisy-neighbor isolation without dedicated infrastructure per tenant. Solved via ClickHouse profile-level CPU/memory/concurrency quotas, with every query traced under a `tenant_id` span tag feeding per-tenant cost dashboards. You can't fix what you can't attribute.
-
-### Stock trading platform — order management + matching engine
-> *Personal architecture project*
-
-Mini-Robinhood / Interactive Brokers, designed for 1M orders/sec with deterministic sub-microsecond matching. Hot path in C++/Rust (matching engine, market data handler at ~5M ticks/sec), cold path in Go/Java (clearing, compliance, audit).
-
-**Why it's a challenging system I've designed:** it's the strictest intersection of *correctness, latency, and regulation* in software. A misplaced order costs millions and triggers regulatory inquiries. Closer to embedded systems than typical backend.
-
-The architecture leans on:
-- **LMAX Disruptor** for in-memory event processing on the hot path
-- **Aeron / Chronicle Queue** for ultra-low-latency IPC between services
-- **Single-writer per symbol** — no contention, cache-line friendly
-- **Event sourcing with deterministic replay** — recreate any moment in market time, byte-for-byte
-- **Pre-trade risk checks** (account margin, position limits, regulatory limits) on the gateway, before the order ever touches the matching engine
-- **Kill switches at three layers**: per-account, per-symbol, global
-- **PTP-synchronized microsecond timestamping** for SEC Rule 613 / CAT and MiFID II reporting
-- **kdb+/QuestDB** for tick analytics, TimescaleDB for end-of-day, FIX protocol for exchange connectivity
-
-### Real-time collaborative document platform
-> *Architecture & design work*
-
-Active-active multi-region, concurrent editors per document, keystroke-to-remote-echo p99 < 100ms within-region. Rust + Go microservices, Yjs / Automerge (CRDTs) for convergence, Redis Streams for ephemeral collab state, Postgres for metadata, S3 for content-addressed snapshots and version blobs.
-
-WebSocket edge layer uses consistent hashing for sticky sessions to document shards. Convergence verified via Jepsen-style network partition testing.
-
 ### Streaming & AR video infrastructure
 
 Low-latency AI avatar / lip-sync video pipeline in Go on GCP, HLS + WebSocket distribution for AR ad experiences. Green-screen service orchestrating concurrent FFmpeg workers on GKE, queue-driven scaling with back-pressure for high-volume rendering.
