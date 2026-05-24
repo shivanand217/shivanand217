@@ -46,12 +46,12 @@ A platform that turns a person's likeness into a multilingual conversational ava
  
 **RAG for grounded responses.** Hybrid retrieval over domain corpora — product docs, policy PDFs, branch FAQs — with dense embeddings + BM25 + reranking. Crucial detail: **retrieval and generation run in the user's chosen language**, not English-then-translate. Cross-lingual embeddings let a Hindi or Tamil query retrieve from an English source doc when needed, with the generation model producing the response in the target language. Chunking strategy tuned per document type (regulatory text vs. conversational FAQs vs. tabular product matrices).
  
-**Multilingual is a systems problem, not a model problem.** TTS voice cloning per persona, accent and prosody calibration per language, lip-sync model conditioned on phoneme sequences that differ across languages — each one is a pipeline stage with its own latency, cost, and failure mode. The orchestrator treats every stage as a versioned, retryable activity so a TTS failure in Marathi doesn't break the entire request.
+**Multilingual is a systems problem, not a model problem.** TTS voice cloning per persona, accent, and prosody calibration per language, lip-sync model conditioned on phoneme sequences that differ across languages — each one is a pipeline stage with its own latency, cost, and failure mode. The orchestrator treats every stage as a versioned, retryable activity, so a TTS failure in Marathi doesn't break the entire request.
  
-**Streaming delivery for AR.** HLS adaptive bitrate for pre-rendered avatar segments, WebSocket distribution for interactive/streamed responses, designed for the AR ad and in-app experiences Flam ships at scale. The low-latency path matters — a 2-second pause between question and avatar reply breaks the illusion of conversation.
+**Streaming delivery for AR content.** HLS adaptive bitrate for pre-rendered avatar segments, WebSocket distribution for interactive/streamed responses, designed for the AR ad and in-app experiences. The low-latency path mattered — a 2-second pause between question and avatar reply breaks the illusion of conversation.
  
 **The hard problems.**
-- *Lip-sync fidelity across phoneme inventories.* Hindi has retroflex consonants English doesn't; a model trained primarily on English produces uncanny output. Conditioning and post-processing matter.
+- *Lip-sync fidelity across phoneme inventories.* Hindi has retroflex consonants, English doesn't; a model trained primarily on English produces uncanny output. Conditioning and post-processing matter.
 - *Grounding without hallucination in regulated domains.* A banking avatar that invents an interest rate is a compliance incident. Retrieval-augmented generation with citation traces and refuse-to-answer fallbacks.
 - *Cost per minute of avatar video.* Tracked at the workload level — TTS cost + LLM tokens + GPU-seconds for synthesis + bandwidth — so each banking customer use case has a defensible unit economics story.
 - *Cold-start latency.* GPU warm pools sized against expected traffic; speculative pre-rendering of likely follow-up responses for common conversation flows.
@@ -59,7 +59,7 @@ A platform that turns a person's likeness into a multilingual conversational ava
 ### Earlier work worth mentioning
 
 - Built search & discovery read paths with Go worker pools — APIs scaled from struggling at lower volumes to 150k+ peak QPS, p99 from 450ms → <80ms. Built the CDC pipeline (Go + Kafka), keeping Elasticsearch within 200ms of the source of truth for the global feed.
-- Subscription billing platform driving 50% revenue growth. Idempotent payment flows, webhook processing with retry, exactly-once semantics, and dead-letter recovery. The system I'm proudest of for being *boring* in production.
+- Subscription billing platform driving 50% revenue growth. Idempotent payment flows, webhook processing with retry, exactly-once semantics, and dead-letter recovery.
 - CQRS analytics platform ingesting 20M records/day. Saga orchestration on RabbitMQ for distributed trip lifecycles with compensating transactions.
 - Built mobile apps/SDKs for insurtech, content-commerce(similar to tiktok) and healthcare products.
 
