@@ -33,28 +33,34 @@ Kafka → Apache Flink → ClickHouse, with stateful stream processing, exactly-
 
 **SLOs I committed to and held:** 99% availability, click-to-query freshness < 90s, analytics read p99 < 200ms. Validated under k6 load tests and chaos drills — TaskManager kills mid-window, broker failovers — exactly-once recovery confirmed with zero data loss.
 
-### Streaming & AR video infrastructure
+### Multi-tenant RAG platform — tenant isolation as the product, sub-500ms P95 retrieval
+> *Personal project — building in the open*
+ 
+A production-grade, multi-tenant Retrieval-Augmented Generation platform: a SaaS API that lets other companies plug their own documents into LLM-powered search and Q&A, with strict per-customer isolation, sub-500ms retrieval, and SLO-gated reliability. The hard part isn't calling the LLM — it's everything around it.
+ 
+**The retrieval architecture.** Documents land in GCS, then get parsed, chunked (~500-token windows with overlap), and embedded asynchronously into pgvector (HNSW) + Postgres `tsvector` for BM25. Queries run parallel vector + BM25 retrieval, fuse the two ranked lists with Reciprocal Rank Fusion, rerank the top candidates with Cohere Rerank v3, then either return passages or stream a Claude Sonnet answer with citations over SSE.
+ 
+**Multi-tenancy as a first-class invariant.** Pool model — one Postgres, every table carries `tenant_id`, and Postgres Row-Level Security enforces isolation at the engine level, not the application layer. Every transaction begins with `SET LOCAL app.tenant_id`; a `TenantDB` wrapper refuses to hand out a connection without that context. A CI suite runs every endpoint as tenant A targeting tenant B's resources and asserts 403/404 on every one — cross-tenant leak is structurally impossible, not just policy.
+ 
+**Reliability at every boundary.** Per-upstream circuit breakers (OpenAI, Anthropic, Cohere, GCS, Postgres, Redis, Pub/Sub). Hedged LLM requests — fire Claude, then fire a GPT fallback at ~P95 if the first token hasn't landed, cutting P99 latency 40-60% for ~5% extra cost. Outbox pattern so no event is ever lost: events commit to a Postgres table inside the business transaction, a publisher tails it to Pub/Sub, consumers are idempotent, with DLQ topics and a replay CLI. Graceful degradation with `X-Degraded` headers — reranker down means RRF results, never a 500.
+ 
+**Cost discipline as a feature.** Embedding dedup via content hash (re-uploads skip the most expensive variable cost), a semantic cache on near-identical queries, and a three-bucket per-tenant rate limiter (QPS, tokens/min, $/day) enforced atomically via a Redis Lua script — failing *open* to conservative in-memory limits under a Redis outage, because failing closed would rate-limit you out of business. A per-tenant cost meter feeds both billing and a kill-switch at the configured daily limit.
 
-Low-latency AI avatar / lip-sync video pipeline in Go on GCP, HLS + WebSocket distribution for AR ad experiences. Green-screen service orchestrating concurrent FFmpeg workers on GKE, queue-driven scaling with back-pressure for high-volume rendering.
+---
 
-### Multilingual AI Avatar Platform — RAG + lip-sync video
-> *Shipped — banking & financial services use cases*
+### Discovery & media infrastructure at Trell — 150k+ peak QPS, p99 450ms → <80ms
  
-A platform that turns a person's likeness into a multilingual conversational avatar: the avatar speaks any supported local language with accurate lip-sync, grounded in domain knowledge via RAG. Built for banking and financial-services use cases — onboarding, customer support, branch-style assistance — where trust, language coverage, and factual accuracy are non-negotiable.
+The read path for a TikTok-style content-commerce app's global feed. Two tightly coupled problems: serving discovery at scale and keeping a search index fresh against a firehose of engagement signals.
  
-**Generation pipeline.** Go services on GCP / GKE orchestrating the full chain: text → TTS in target language → lip-sync video synthesis → HLS / WebSocket delivery. Concurrent FFmpeg worker pools for green-screen compositing and final encode. Queue-driven autoscaling with back-pressure so a burst of avatar generation requests doesn't melt the GPU pool — the same pattern I use for any heavy async workload, applied to GPU-bound work.
+**The discovery engine.** Built in Go, backed by Elasticsearch with index aliases for zero-downtime re-indexing. Edge n-gram tokenizers for prefix/typo-tolerant matching, and Function Score queries with Gaussian decay to balance two things that pull in opposite directions — *freshness* (new content should surface) and *virality* (engagement should rank). Tuning that decay curve is the whole game: too aggressive and stale-but-popular content dominates; too soft and the feed feels random.
  
-**RAG for grounded responses.** Hybrid retrieval over domain corpora — product docs, policy PDFs, branch FAQs — with dense embeddings + BM25 + reranking. Crucial detail: **retrieval and generation run in the user's chosen language**, not English-then-translate. Cross-lingual embeddings let a Hindi or Tamil query retrieve from an English source doc when needed, with the generation model producing the response in the target language. Chunking strategy tuned per document type (regulatory text vs. conversational FAQs vs. tabular product matrices).
+**What was hard:** keeping the index within 200ms of the source of truth at that signal volume. I built a Change Data Capture pipeline in Go + Kafka to asynchronously sync high-velocity video engagement signals and metadata into Elasticsearch, holding <200ms replication lag for the global feed. CDC over dual-writes because the feed can tolerate slight staleness but *cannot* tolerate the index and the source disagreeing — CDC gives you one ordered log of truth to replay from.
  
-**Multilingual is a systems problem, not a model problem.** TTS voice cloning per persona, accent, and prosody calibration per language, lip-sync model conditioned on phoneme sequences that differ across languages — each one is a pipeline stage with its own latency, cost, and failure mode. The orchestrator treats every stage as a versioned, retryable activity, so a TTS failure in Marathi doesn't break the entire request.
+**Scaling the read path.** Re-engineered the discovery APIs around Go worker pools and goroutines, scaling from struggling at lower volumes to **150k+ peak QPS** and dropping **p99 from 450ms to <80ms**. The win wasn't a single trick — it was bounded concurrency (worker pools instead of unbounded goroutine spawn), connection reuse, and cutting redundant Elasticsearch round-trips on the hot path.
  
-**Streaming delivery for AR content.** HLS adaptive bitrate for pre-rendered avatar segments, WebSocket distribution for interactive/streamed responses, designed for the AR ad and in-app experiences. The low-latency path mattered — a 2-second pause between question and avatar reply breaks the illusion of conversation.
+**The media pipeline.** An asynchronous video transcoding pipeline orchestrating multi-bitrate processing for 2k+ daily uploads. S3 multipart uploads + FFmpeg generating HLS adaptive streams (360p → 1080p) for seamless playback across network conditions.
  
-**The hard problems.**
-- *Lip-sync fidelity across phoneme inventories.* Hindi has retroflex consonants, English doesn't; a model trained primarily on English produces uncanny output. Conditioning and post-processing matter.
-- *Grounding without hallucination in regulated domains.* A banking avatar that invents an interest rate is a compliance incident. Retrieval-augmented generation with citation traces and refuse-to-answer fallbacks.
-- *Cost per minute of avatar video.* Tracked at the workload level — TTS cost + LLM tokens + GPU-seconds for synthesis + bandwidth — so each banking customer use case has a defensible unit economics story.
-- *Cold-start latency.* GPU warm pools sized against expected traffic; speculative pre-rendering of likely follow-up responses for common conversation flows.
+**iOS.** Built the feed API contracts and rebuilt the iOS video feed (MVVM + Combine), contributing to 3× MAU growth (~400k users), and migrated the entire app from React Native to native iOS (Swift, SwiftUI).
 
 ### Earlier work worth mentioning
 
