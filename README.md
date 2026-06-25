@@ -33,18 +33,14 @@ Kafka → Apache Flink → ClickHouse, with stateful stream processing, exactly-
 
 **SLOs I committed to and held:** 99% availability, click-to-query freshness < 90s, analytics read p99 < 200ms. Validated under k6 load tests and chaos drills — TaskManager kills mid-window, broker failovers — exactly-once recovery confirmed with zero data loss.
 
-### Multi-tenant RAG platform — tenant isolation as the product, sub-500ms P95 retrieval
-> *Personal project — building in the open*
- 
-A production-grade, multi-tenant Retrieval-Augmented Generation platform: a SaaS API that lets other companies plug their own documents into LLM-powered search and Q&A, with strict per-customer isolation, sub-500ms retrieval, and SLO-gated reliability. The hard part isn't calling the LLM — it's everything around it.
- 
-**The retrieval architecture.** Documents land in GCS, then get parsed, chunked (~500-token windows with overlap), and embedded asynchronously into pgvector (HNSW) + Postgres `tsvector` for BM25. Queries run parallel vector + BM25 retrieval, fuse the two ranked lists with Reciprocal Rank Fusion, rerank the top candidates with Cohere Rerank v3, then either return passages or stream a Claude Sonnet answer with citations over SSE.
- 
-**Multi-tenancy as a first-class invariant.** Pool model — one Postgres, every table carries `tenant_id`, and Postgres Row-Level Security enforces isolation at the engine level, not the application layer. Every transaction begins with `SET LOCAL app.tenant_id`; a `TenantDB` wrapper refuses to hand out a connection without that context. A CI suite runs every endpoint as tenant A targeting tenant B's resources and asserts 403/404 on every one — cross-tenant leak is structurally impossible, not just policy.
- 
-**Reliability at every boundary.** Per-upstream circuit breakers (OpenAI, Anthropic, Cohere, GCS, Postgres, Redis, Pub/Sub). Hedged LLM requests — fire Claude, then fire a GPT fallback at ~P95 if the first token hasn't landed, cutting P99 latency 40-60% for ~5% extra cost. Outbox pattern so no event is ever lost: events commit to a Postgres table inside the business transaction, a publisher tails it to Pub/Sub, consumers are idempotent, with DLQ topics and a replay CLI. Graceful degradation with `X-Degraded` headers — reranker down means RRF results, never a 500.
- 
-**Cost discipline as a feature.** Embedding dedup via content hash (re-uploads skip the most expensive variable cost), a semantic cache on near-identical queries, and a three-bucket per-tenant rate limiter (QPS, tokens/min, $/day) enforced atomically via a Redis Lua script — failing *open* to conservative in-memory limits under a Redis outage, because failing closed would rate-limit you out of business. A per-tenant cost meter feeds both billing and a kill-switch at the configured daily limit.
+### Sales-outreach agent
+
+Multi-tenant AI-agent system: A B2B lead fills out a "Request a demo" form and an autonomous agent enriches them, scores ICP fit, researches, writes a personalized email, handles the multi-day reply conversation, and books a meeting — remembering everything about the lead across days and threads. The hard part isn't calling the LLM — it's making a non-deterministic agent safe to point at real customers' inboxes and calendars.
+
+**Stateless loop, externalized memory.** The agent holds *no* state between runs — every invocation is one pass of a 6-step heartbeat (load short-term → load structured facts → retrieve semantic memory → assemble context → think→act→observe → write back), with all state in Redis (working buffer), Postgres (lead facts), and pgvector (semantic memory = RAG over the agent's own past). A reply that lands two days later wakes a fresh worker that behaves like one attentive salesperson — because memory is the agent.
+
+**Cost discipline** A model-routing gateway sends cheap work (ICP scoring, reply-intent classification) to Claude Haiku and reserves Opus for nuanced outreach — ~2.5–3× cheaper per lead than an all-frontier baseline — with adaptive thinking, prompt-prefix caching, an exact-response cache, and per-(tenant,model) token budgets. Every call logs tokens + USD + latency, and runaway agents are capped by max-iterations and a per-run cost ceiling.
+
 
 ---
 
