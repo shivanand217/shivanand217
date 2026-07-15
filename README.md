@@ -25,7 +25,7 @@ I care most about three things: **Building high throughput**, **low latency**, a
 
 ## Systems I've built (the ones worth talking about)
 
-### Real-time ad analytics — 10k QPS sustained, click-to-query in ~70s
+### Real-time ad events lakehouse & analytics - 10k-15k sustained QPS, click-to-query in ~60s
 
 Kafka → Apache Flink → ClickHouse, with stateful stream processing, exactly-once checkpointing, and late-event handling. Brands query 1-minute granular campaign metrics within ~70 seconds of the click landing. Hot rollups cached in Redis with 30s TTL and click-level de-duplication, materially reducing ClickHouse query load.
 
