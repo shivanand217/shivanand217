@@ -1,4 +1,3 @@
-
 <!--
 **shivanand217/shivanand217** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
@@ -86,8 +85,8 @@ Most used stacks till now -
 | Layer | Tools |
 | :--- | :--- |
 | **Application backend** | Java/Spring, Go, Node/TypeScript, Rust, C++ |
-| **Streaming & messaging** | Kafka, Apache Flink, Redis Streams, RabbitMQ, Aeron |
-| **OLAP & storage** | ClickHouse, Apache Iceberg, TimescaleDB, kdb+ / QuestDB, Postgres, Mongo/DynamoDB, S3 |
+| **Streaming & messaging** | Kafka, Apache Flink, Redis, RabbitMQ, Aeron |
+| **OLAP/OLTP DB's and storage** | ClickHouse, Apache Iceberg, TimescaleDB, kdb+ / QuestDB, Postgres, Mongo/DynamoDB, S3 |
 | **Search** | Elasticsearch, OpenSearch (edge n-grams, function score, decay) |
 | **Infra, Cloud and observability** | Kubernetes, GKE, AWS, GCP, Prometheus, Grafana, Zipkin |
 | **LLM & AI infra** | vLLM, Temporal, OpenAI / Anthropic APIs, eval harnesses |
