@@ -72,14 +72,15 @@ Most used stacks till now -
 
 | Layer | Tools |
 | :--- | :--- |
-| **Application backend** | Java/Spring, Go, Node/TypeScript, Rust, C++ |
-| **Streaming & messaging** | Kafka, Apache Flink, Redis, RabbitMQ, Aeron |
-| **OLAP/OLTP DB's and storage** | ClickHouse, Apache Iceberg, TimescaleDB, kdb+ / QuestDB, Postgres, Mongo/DynamoDB, S3 |
-| **Search** | Elasticsearch, OpenSearch (edge n-grams, function score, decay) |
+| **Language proficiency** | Java/Spring, Go, Node/TypeScript, Rust, C++ |
+| **Backend frameworks** | Spring-Boot, Go(gin), FastAPI, NestJS/Fastify
+| **Streaming & messaging** | Kafka, Apache Flink, Redis, RabbitMQ, Amazon SQS |
+| **OLAP/OLTP DB's and storage** | Postgres, Mongo/DynamoDB, S3, ClickHouse, Apache Iceberg, TimescaleDB, kdb+ / QuestDB |
+| **Search** | Elastic-search, OpenSearch (edge n-grams, function score, decay) |
 | **Infra, Cloud and observability** | Kubernetes, GKE, AWS, GCP, Prometheus, Grafana, Zipkin |
 | **LLM & AI infra** | AI agents, Temporal, OpenAI / Anthropic APIs, Eval harnesses |
-| **Patterns** | Event sourcing, CQRS, Saga, DDD, CRDTs, multi-tenancy isolation |
-| **Mobile** | iOS(Swift), React Native, Kotlin(Android) | 
+| **Patterns** | Event sourcing/Event driven systems, CQRS, Saga, DDD, CRDTs, multi-tenancy isolation |
+| **Mobile** | iOS(Swift), React Native | 
 
 ---
 
